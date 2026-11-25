@@ -1,0 +1,21 @@
+{
+    "name": "lystokhq/lystok-php",
+    "description": "The official PHP library for the Lystok email API: send email, keep contacts in step, check webhooks.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["lystok", "email", "transactional email", "api", "webhooks"],
+    "homepage": "https://lystok.com",
+    "require": {
+        "php": ">=8.2",
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lystok\\": "src/"
+        }
+    },
+    "scripts": {
+        "test": "php tests/run.php"
+    }
+}
