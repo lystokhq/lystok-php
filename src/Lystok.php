@@ -8,7 +8,7 @@ namespace Lystok;
  * The Lystok API client.
  *
  * ```php
- * $lystok = new Lystok\Lystok(); // reads LYSTOK_API_KEY
+ * $lystok = new Lystok\Lystok($_ENV['LYSTOK_API_KEY']); // from wherever you keep it
  * $email = $lystok->emails->send([
  *     'from' => 'Shop <orders@shop.example>',
  *     'to' => 'olena@example.com',
@@ -37,20 +37,19 @@ final class Lystok
     private $transport;
 
     /**
-     * @param string|null $apiKey An API key from Settings → For developers; `LYSTOK_API_KEY` when not given.
+     * @param string $apiKey An API key from Settings → For developers (`lk_live_…`).
      * @param array{base_url?: string, timeout?: float, max_retries?: int, transport?: callable} $options
      *     `base_url` (default `https://api.lystok.com`); `timeout`: how long one attempt may wait,
      *     in seconds (30); `max_retries`: how many times to try again after a network error, a
      *     timeout, 429 or 5xx (2) — safe for emails too, every send carries an `Idempotency-Key`;
      *     `transport`: your own HTTP sender, see {@see Lystok::curl()}.
      */
-    public function __construct(?string $apiKey = null, array $options = [])
+    public function __construct(string $apiKey, array $options = [])
     {
-        $key = $apiKey ?? (getenv('LYSTOK_API_KEY') ?: null);
-        if ($key === null || $key === '') {
-            throw new \InvalidArgumentException("Missing API key: pass it to new Lystok('lk_live_...') or set LYSTOK_API_KEY");
+        if (trim($apiKey) === '') {
+            throw new \InvalidArgumentException('Missing API key: pass your Lystok API key (lk_live_...) to new Lystok()');
         }
-        $this->apiKey = $key;
+        $this->apiKey = $apiKey;
         $this->baseUrl = rtrim($options['base_url'] ?? self::DEFAULT_BASE_URL, '/');
         $this->timeout = (float) ($options['timeout'] ?? 30.0);
         $this->maxRetries = max(0, (int) ($options['max_retries'] ?? 2));

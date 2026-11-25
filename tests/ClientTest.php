@@ -38,19 +38,21 @@ function apiError(string $code, string $message = 'x'): array
     return ['error' => ['code' => $code, 'message' => $message, 'requestId' => 'req_1']];
 }
 
-test('client: needs an API key, or LYSTOK_API_KEY', function () {
+test('client: needs an API key, and never reads one from the environment', function () {
     $before = getenv('LYSTOK_API_KEY');
-    putenv('LYSTOK_API_KEY');
+    putenv('LYSTOK_API_KEY=lk_live_from_env');
     try {
-        assertThrows(InvalidArgumentException::class, fn () => new Lystok());
-        putenv('LYSTOK_API_KEY=lk_live_from_env');
-        $api = new FakeApi([[200, ['id' => 'e1']]]);
-        (new Lystok(null, ['transport' => $api]))->emails->get('e1');
-        assertSame('Bearer lk_live_from_env', $api->calls[0]['headers']['Authorization']);
-        assertSame('https://api.lystok.com/v1/emails/e1', $api->calls[0]['url']);
+        assertThrows(ArgumentCountError::class, fn () => new Lystok());
+        assertThrows(TypeError::class, fn () => new Lystok(null));
+        assertThrows(InvalidArgumentException::class, fn () => new Lystok(''));
+        assertThrows(InvalidArgumentException::class, fn () => new Lystok('  '));
     } finally {
         putenv($before === false ? 'LYSTOK_API_KEY' : "LYSTOK_API_KEY={$before}");
     }
+    $api = new FakeApi([[200, ['id' => 'e1']]]);
+    (new Lystok('lk_live_given', ['transport' => $api]))->emails->get('e1');
+    assertSame('Bearer lk_live_given', $api->calls[0]['headers']['Authorization']);
+    assertSame('https://api.lystok.com/v1/emails/e1', $api->calls[0]['url']);
 });
 
 test('client: send', function () {

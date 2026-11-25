@@ -18,7 +18,7 @@ function live(): array
     if (getenv('LYSTOK_LIVE') !== '1') {
         skip('set LYSTOK_LIVE=1 to run');
     }
-    $lystok = new Lystok(null, ['base_url' => getenv('LYSTOK_BASE_URL') ?: 'https://api.lystok.com']);
+    $lystok = new Lystok((string) getenv('LYSTOK_API_KEY'), ['base_url' => getenv('LYSTOK_BASE_URL') ?: 'https://api.lystok.com']);
     $email = fn (string $subject) => ['from' => getenv('LYSTOK_TEST_FROM'), 'to' => getenv('LYSTOK_TEST_TO'), 'subject' => $subject, 'text' => 'lystok-php live test'];
     return [$lystok, $email];
 }

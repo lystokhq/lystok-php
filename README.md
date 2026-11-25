@@ -15,7 +15,7 @@ Create an API key in Lystok → Settings → For developers, and verify your sen
 ```php
 use Lystok\Lystok;
 
-$lystok = new Lystok(); // reads LYSTOK_API_KEY
+$lystok = new Lystok($_ENV['LYSTOK_API_KEY']);
 
 $email = $lystok->emails->send([
     'from' => 'Shop <orders@shop.example>',
@@ -26,7 +26,8 @@ $email = $lystok->emails->send([
 echo $email['id'];
 ```
 
-`new Lystok('lk_live_…')` takes the key directly. Keys belong on your server: never put one in a
+Pass the key from wherever you keep it: any environment variable name, a secrets manager or your
+config (`config('services.lystok.key')` in Laravel). Keys belong on your server: never put one in a
 browser or a mobile app. Answers come back as associative arrays, with keys as the API sends them
 (`created_at`).
 
@@ -127,7 +128,7 @@ Network errors, timeouts, `429` and `5xx` are tried again twice, waiting a littl
 (or as long as `Retry-After` says). Each try may take 30 seconds.
 
 ```php
-$lystok = new Lystok(null, ['max_retries' => 4, 'timeout' => 10]);
+$lystok = new Lystok($apiKey, ['max_retries' => 4, 'timeout' => 10]);
 $lystok->emails->get($id, timeout: 5);
 ```
 
